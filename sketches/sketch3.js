@@ -13,10 +13,10 @@ registerSketch('sk3', function (p) {
     const w = p.width;
     const h = p.height;
 
-    // --- SKY ---
+    // sky
     p.background(150, 190, 225);
 
-    // --- BARBER SHOP BUILDING (left 3/4) ---
+    // building
     p.fill(145, 95, 60);
     p.rect(0, h * 0.15, w * 0.85, h * 0.85);
 
@@ -28,7 +28,7 @@ registerSketch('sk3', function (p) {
     p.fill(120, 75, 45);
     p.rect(0, h * 0.15, w * 0.85, h * 0.175);
 
-    // --- AWNING TEXT ---
+    // awning text
     p.fill(210, 170, 85);
     p.textAlign(p.CENTER, p.CENTER);
     p.textSize(w * 0.1);
@@ -55,6 +55,33 @@ registerSketch('sk3', function (p) {
     // door window
     p.fill(200, 220, 230);
     p.rect(w * 0.05, h * 0.4, w * 0.2, h * 0.3);
+
+    // open sign
+    const signX = w * 0.075;
+    const signY = h * 0.475;
+    const signW = w * 0.15;
+    const signH = h * 0.2;
+
+    // blue inner
+    const blueX = w * 0.085;
+    const blueY = h * 0.535;
+    const blueW = w * 0.13;
+    const blueH = h * 0.13;
+
+    // open sign + blue
+    p.fill(255);
+    p.rect(signX, signY, signW, signH);
+
+    p.fill(173, 216, 230);
+    p.rect(blueX, blueY, blueW, blueH);
+
+    // center blue square
+    const cx = blueX + blueW / 2;
+    const cy = blueY + blueH / 2;
+
+    // clock circle
+    p.fill(255);
+    p.ellipse(cx, cy, blueW * 0.9, blueH * 0.9);
 
     // ground
     p.fill(180, 170, 160);
