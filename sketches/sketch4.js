@@ -33,16 +33,16 @@ registerSketch('sk4', function (p) {
     p.fill(175, 170, 160);
     p.rect(0, h * 0.55, w, h * 0.45);
 
-    // --- arm (simple band across screen) ---
+    // arm
     p.fill(215, 180, 150);
     p.rect(0, h * 0.35, w * 0.85, h * 0.30);
 
-    // --- watch band ---
+    // watch band
     p.fill(40);
     p.rect(w * 0.42, h * 0.42, w * 0.16, h * 0.25, w * 0.03);
     p.rect(w * 0.42, h * 0.33, w * 0.16, h * 0.25, w * 0.03);
 
-    // --- watch body (circle only) ---
+    // watch body
     const cx = w * 0.5;
     const cy = h * 0.5;
     const d = w * 0.30;
