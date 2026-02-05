@@ -7,11 +7,18 @@ registerSketch('sk4', function (p) {
   p.setup = function () {
     p.createCanvas(canvasW(), canvasH());
     p.noStroke();
+
+    // pace slider
+    paceSlider = p.createSlider(3.0, 12.0, 7.75, 0.05);
+    paceSlider.style('width', '220px');
   };
 
   p.draw = function () {
     const w = p.width;
     const h = p.height;
+    
+    // place slider
+    paceSlider.position(20, 150);
 
     // sky
     p.background(200, 230, 240);
@@ -48,31 +55,68 @@ registerSketch('sk4', function (p) {
     p.fill(15);
     p.ellipse(cx, cy, d, d);
 
-    // watch time
+    // face details
+      // digital clock
       const hr = p.hour();
       const min = p.minute();
-      const sec = p.second();
-
-      // format as digital
       const hr12 = (hr % 12 === 0) ? 12 : (hr % 12);
       const timeStr = `${hr12}:${min.toString().padStart(2, "0")}`;
 
-      // top quadrant position
-      const topY = cy - d * 0.25;
+      // pace from slider (min/mi)
+      const paceMinPerMile = paceSlider.value();
 
-      // time text
-      p.fill(235);
+      // format pace
+      const paceMin = Math.floor(paceMinPerMile);
+      const paceSec = Math.round((paceMinPerMile - paceMin) * 60);
+      const paceStr = `${paceMin}:${paceSec.toString().padStart(2, "0")}`;
+
+      // distance grows over time based on pace; resets on refresh because millis resets
+      const runMinutes = (p.millis() / 1000) / 60;
+      const distMiles = runMinutes / paceMinPerMile;
+
+      // slider label
+      p.fill(40);
+      p.textAlign(p.LEFT, p.CENTER);
+      p.textStyle(p.BOLD);
+      p.textSize(16);
+      p.text(`PACE: ${paceStr} /mi`, 20, 55);
+
       p.textAlign(p.CENTER, p.CENTER);
+
+      // time
+      const topY = cy - d * 0.25;
+      p.fill(235);
       p.textStyle(p.BOLD);
       p.textSize(d * 0.18);
       p.text(timeStr, cx, topY);
 
-      // optional small seconds (comment out if you don't want it)
-      p.fill(170);
-      p.textStyle(p.NORMAL);
-      p.textSize(d * 0.08);
-      p.text(sec.toString().padStart(2, "0"), cx + d * 0.28, topY);
+      // pace
+      const midY = cy;
+      const leftX = cx - d * 0.22;
+      const rightX = cx + d * 0.22;
 
+      // labels
+      p.fill(160);
+      p.textStyle(p.NORMAL);
+      p.textSize(d * 0.07);
+      p.text("PACE", leftX, midY - d * 0.12);
+      p.text("DIST", rightX, midY - d * 0.12);
+
+      // values
+      p.fill(235);
+      p.textStyle(p.BOLD);
+      p.textSize(d * 0.12);
+      p.text(paceStr, leftX, midY);
+      p.text(distMiles.toFixed(2), rightX, midY);
+
+      // units
+      p.fill(160);
+      p.textStyle(p.NORMAL);
+      p.textSize(d * 0.06);
+      p.text("/mi", leftX, midY + d * 0.11);
+      p.text("mi", rightX, midY + d * 0.11);
+
+    // end face details
   };
 
   p.windowResized = function () {
