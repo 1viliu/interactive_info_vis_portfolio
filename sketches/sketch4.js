@@ -47,6 +47,32 @@ registerSketch('sk4', function (p) {
     // inner face placeholder
     p.fill(15);
     p.ellipse(cx, cy, d, d);
+
+    // watch time
+      const hr = p.hour();
+      const min = p.minute();
+      const sec = p.second();
+
+      // format as digital
+      const hr12 = (hr % 12 === 0) ? 12 : (hr % 12);
+      const timeStr = `${hr12}:${min.toString().padStart(2, "0")}`;
+
+      // top quadrant position
+      const topY = cy - d * 0.25;
+
+      // time text
+      p.fill(235);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.textStyle(p.BOLD);
+      p.textSize(d * 0.18);
+      p.text(timeStr, cx, topY);
+
+      // optional small seconds (comment out if you don't want it)
+      p.fill(170);
+      p.textStyle(p.NORMAL);
+      p.textSize(d * 0.08);
+      p.text(sec.toString().padStart(2, "0"), cx + d * 0.28, topY);
+
   };
 
   p.windowResized = function () {

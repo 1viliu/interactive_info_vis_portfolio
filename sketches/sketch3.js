@@ -106,7 +106,7 @@ registerSketch('sk3', function (p) {
     p.ellipse(w * 0.88, h * 0.88, w * 0.28, h * 0.22);
 
     // open sign clock
-      const clockR = Math.min(blueW, blueH) * 0.9 * 0.5; // radius of the white circle
+      const clockR = Math.min(blueW, blueH) * 0.9 * 0.5;
 
       // tick marks
       p.push();
@@ -135,7 +135,7 @@ registerSketch('sk3', function (p) {
       const mFrac = (m + sFrac) / 60;
       const hFrac = (hr + mFrac) / 12;
 
-      // angles (rotate so 12 is up)
+      // angles
       const sAng = p.TWO_PI * sFrac - p.HALF_PI;
       const mAng = p.TWO_PI * mFrac - p.HALF_PI;
       const hAng = p.TWO_PI * hFrac - p.HALF_PI;
