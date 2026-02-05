@@ -116,6 +116,46 @@ registerSketch('sk4', function (p) {
       p.text("/mi", leftX, midY + d * 0.11);
       p.text("mi", rightX, midY + d * 0.11);
 
+      // heart rate
+      const botY = cy + d * 0.28;
+
+      // label
+      p.fill(160);
+      p.textStyle(p.NORMAL);
+      p.textSize(d * 0.07);
+      p.text("HR", cx, botY - d * 0.12);
+
+      // value
+      p.fill(235);
+      p.textStyle(p.BOLD);
+      p.textSize(d * 0.12);
+      p.text("153", cx + d * 0.05, botY);
+
+      // units
+      p.fill(160);
+      p.textStyle(p.NORMAL);
+      p.textSize(d * 0.06);
+      p.text("bpm", cx + d * 0.22, botY);
+
+      // beating heart icon
+      const t = (p.millis() % 1000) / 1000;
+      const pulse = 1 + 0.35 * Math.pow(1 - t, 3);
+
+      const hx = cx - d * 0.22;
+      const hy = botY;
+      const hs = d * 0.06 * pulse;
+
+      p.push();
+      p.translate(hx, hy);
+      p.noStroke();
+      p.fill(220, 70, 70);
+
+      // heart shape
+      p.ellipse(-hs * 0.6, -hs * 0.2, hs, hs);
+      p.ellipse(hs * 0.6, -hs * 0.2, hs, hs);
+      p.triangle(-hs * 1.2, -hs * 0.1, hs * 1.2, -hs * 0.1, 0, hs * 1.6);
+
+      p.pop();
     // end face details
   };
 
