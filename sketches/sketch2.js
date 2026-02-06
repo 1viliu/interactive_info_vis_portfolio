@@ -15,21 +15,29 @@ registerSketch('sk2', function (p) {
     // background
     p.background(200);
 
-    // Road
+    // road
     p.fill(60);
     p.rect(0, h * 0.65, w, h * 0.35);
 
-    // taxi
-    if (p.taxiX === undefined) p.taxiX = -550;
-    const taxiW = 500;
-    p.taxiX += 4;
+    if (p.taxiX === undefined) {
+      p.taxiX = -550;
+      p.lastSecond = p.second();
+    }
 
-    // reset only after taxi fully exits right
+    const taxiW = 500;
+    const taxiY = h * 0.70;
+
+    // movement
+    const currentSecond = p.second();
+    if (currentSecond !== p.lastSecond) {
+      p.taxiX += 50; // px per second
+      p.lastSecond = currentSecond;
+    }
+
+    // reset
     if (p.taxiX > w + taxiW) {
       p.taxiX = -taxiW;
     }
-
-    const taxiY = h * 0.70;
 
     // wheels
     p.fill(20);
@@ -50,6 +58,19 @@ registerSketch('sk2', function (p) {
     // ad screen placeholder
     p.fill(180);
     p.rect(p.taxiX + 208, taxiY - 114, 104, 28, 6);
+
+    // clock
+    const hr = p.hour();
+    const min = p.minute();
+    const sec = p.second();
+
+    const timeStr =
+      p.nf(hr, 2) + ":" + p.nf(min, 2) + ":" + p.nf(sec, 2);
+
+    p.fill(0, 255, 180); // digital clock green
+    p.textAlign(p.CENTER, p.CENTER);
+    p.textSize(16);
+    p.text(timeStr, p.taxiX + 260, taxiY - 100);
   };
 
   p.windowResized = function () {
