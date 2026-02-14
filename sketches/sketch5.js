@@ -63,6 +63,43 @@ registerSketch('sk5', function (p) {
     return false; // prevent page scroll
   };
 
+  function worldToScreen(wx, wy) {
+    return { x: wx * zoom + panX, y: wy * zoom + panY };
+  }
+
+  function drawTooltip(px, py, title, body) {
+    const pad = 8;
+    p.textSize(12);
+    p.textAlign(p.LEFT, p.TOP);
+
+    const lines = [title, ...body.split("\n")];
+
+    let maxW = 0;
+    for (let line of lines) {
+      maxW = Math.max(maxW, p.textWidth(line));
+    }
+
+    const lineHeight = 14;
+    const w = maxW + pad * 2;
+    const h = lines.length * lineHeight + pad * 2;
+
+    let x = px + 12;
+    let y = py + 12;
+    x = p.constrain(x, 0, p.width - w);
+    y = p.constrain(y, 0, p.height - h);
+
+    p.fill(255, 245);
+    p.stroke(0);
+    p.rect(x, y, w, h, 8);
+
+    p.noStroke();
+    p.fill(0);
+
+    for (let i = 0; i < lines.length; i++) {
+      p.text(lines[i], x + pad, y + pad + i * lineHeight);
+    }
+  }
+
   function mercator(lat, lon) {
     lat = p.constrain(lat, -85, 85);
     const x = (lon + 180) / 360 * p.width;
@@ -124,6 +161,8 @@ registerSketch('sk5', function (p) {
     for (let r of table.getRows()) {
       const lat = Number(r.getString("Latitude"));
       const lon = Number(r.getString("Longitude"));
+      const name = r.getString("Name") || r.getString("Restaurant Name") || "";
+      const address = r.getString("Address") || "";
       if (Number.isNaN(lat) || Number.isNaN(lon)) continue;
 
       const pRaw = r.getString("Price");
@@ -135,7 +174,15 @@ registerSketch('sk5', function (p) {
       else if (award.includes("2")) stars = 2;
       else if (award.includes("1")) stars = 1;
 
-      points.push({ lat, lon, priceLen: pLen, stars });
+      points.push({
+        lat,
+        lon,
+        priceLen: pLen,
+        stars,
+        name,
+        address,
+        priceRaw: pRaw
+      });
     }
 
     // Price dropdown
@@ -158,9 +205,9 @@ registerSketch('sk5', function (p) {
     // Stars dropdown
     starSelect = p.createSelect();
     starSelect.option("All", "0");
-    starSelect.option("1★", "1");
-    starSelect.option("2★", "2");
-    starSelect.option("3★", "3");
+    starSelect.option("1 ★", "1");
+    starSelect.option("2 ★", "2");
+    starSelect.option("3 ★", "3");
     starSelect.style("font-size", "20px");
     starSelect.style("padding", "10px");
     starSelect.style("border-radius", "10px");
@@ -178,6 +225,18 @@ registerSketch('sk5', function (p) {
   p.draw = function () {
     p.background(245);
 
+    // Title background strip
+    p.fill(255, 240);
+    p.noStroke();
+    p.rect(0, 0, p.width, 70);
+
+    // Title text
+    p.fill(0);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.textSize(28);
+    p.textStyle(p.BOLD);
+    p.text("Michelin Star Restaurants Around the World", p.width / 2, 35);
+
     p.push();
     p.translate(panX, panY);
     p.scale(zoom);
@@ -186,17 +245,73 @@ registerSketch('sk5', function (p) {
     drawGeoJSON(world);
 
     // restaurants
-    p.noStroke();
-    p.fill(0);
+    let hovered = null;
+
     for (let pt of points) {
       if (selectedPriceLen !== 0 && pt.priceLen !== selectedPriceLen) continue;
       if (selectedStars !== 0 && pt.stars !== selectedStars) continue;
 
-      const pos = mercator(pt.lat, pt.lon);
-      p.circle(pos.x, pos.y, 4 / zoom); // keep dot size reasonable
+      const m = mercator(pt.lat, pt.lon);
+      const s = worldToScreen(m.x, m.y);
+
+      const hoverRadius = 10; // bigger hover area
+      const isHover = p.dist(p.mouseX, p.mouseY, s.x, s.y) < hoverRadius;
+
+      if (isHover) hovered = { pt, sX: s.x, sY: s.y };
+    }
+
+    p.noStroke();
+    p.fill(0);
+
+    for (let pt of points) {
+      if (selectedPriceLen !== 0 && pt.priceLen !== selectedPriceLen) continue;
+      if (selectedStars !== 0 && pt.stars !== selectedStars) continue;
+
+      const m = mercator(pt.lat, pt.lon);
+
+      // convert to screen space for hover detection
+      const s = worldToScreen(m.x, m.y);
+
+      const r = 6; // hover radius in pixels
+      const isHover = p.dist(p.mouseX, p.mouseY, s.x, s.y) < r;
+
+      if (isHover) hovered = { pt, sX: s.x, sY: s.y };
+
+      // draw dot in world space (still inside your push/translate/scale)
+      p.circle(m.x, m.y, 4 / zoom);
     }
 
     p.pop();
+
+    for (let pt of points) {
+      if (selectedPriceLen !== 0 && pt.priceLen !== selectedPriceLen) continue;
+      if (selectedStars !== 0 && pt.stars !== selectedStars) continue;
+
+      const m = mercator(pt.lat, pt.lon);
+      const s = worldToScreen(m.x, m.y);
+
+      p.noStroke();
+      p.fill(30, 144, 255); // nice blue
+      p.circle(s.x, s.y, 14); // fixed size, always 14px
+    }
+
+    if (hovered) {
+      // highlight ring
+      p.noFill();
+      p.stroke(0);
+      p.circle(hovered.sX, hovered.sY, 12);
+      const starText = hovered.pt.stars > 0 ? "⭐".repeat(hovered.pt.stars) : "";
+      const priceText = hovered.pt.priceRaw || "";
+
+      // tooltip
+      drawTooltip(
+        hovered.sX,
+        hovered.sY,
+        hovered.pt.name,
+        `${hovered.pt.address}
+      ${starText}   ${priceText}`
+      );    
+    }
 
     const pad = 20;
     starSelect.position(p.width - 180 - pad, p.height - 70 - pad);
