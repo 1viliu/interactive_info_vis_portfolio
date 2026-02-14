@@ -235,7 +235,7 @@ registerSketch('sk5', function (p) {
     p.textAlign(p.CENTER, p.CENTER);
     p.textSize(28);
     p.textStyle(p.BOLD);
-    p.text("Michelin Star Restaurants Around the World", p.width / 2, 35);
+    p.text("Where are all the Michelin Star Restaurants Around the World", p.width / 2, 35);
 
     p.push();
     p.translate(panX, panY);
